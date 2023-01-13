@@ -47,7 +47,9 @@ In fact, replacing the appearance of an object in general is already feasible by
 
 In the gaming industry, this idea is also achievable through altering the assets of the game which is usually referred as modding. The result quality is not as high as done manually by video editors, but still quite plausible (figure \@ref(fig:elden-ring-mod)).
 
-```{r, elden-ring-mod, fig.align="center", out.width="70%", fig.cap="Shrek vs Homer Simpson in Elden Ring from the video [Elden Ring but ruined by mods](https://www.youtube.com/watch?v=b_FKkxVJfZk)"}
+(ref:title-elden-ring-mod) Shrek vs Homer Simpson in Elden Ring from the video [Elden Ring but ruined by mods](https://www.youtube.com/watch?v=b_FKkxVJfZk)
+
+```{r, elden-ring-mod, fig.align="center", out.width="70%", fig.cap="(ref:title-elden-ring-mod)"}
 knitr::include_graphics("figures/elden-ring-mod.png")
 ```
 
@@ -464,7 +466,7 @@ well as past frames and knows nothing about the future information.
 - Work without noticeable lag, achieving a frame rate of up to 25fps on a NVIDIA GTX 1050 TI 4Gb.
 - Fully automatic with no manual work necessary.
 
-However, the result of this method does not look natural and does not blend well with the surrounding environment in the image. Additionally, it can only accurately detect and replace characters when their pose is simple, such as walking, and struggles with more complex poses, such as riding an animal
+However, the result of this method does not look natural and does not blend well with the surrounding environment in the image. Additionally, it can only accurately detect and replace characters when their pose is simple, such as walking, and struggles with more complex poses, such as riding an animal.
 
 ## Improvement
 

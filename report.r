@@ -11,7 +11,7 @@ library(kableExtra)
 knitr::opts_chunk$set(dev = "tikz", echo = F, cache = T)
 options(tikzDefaultEngine = "luatex")
 
-## ---- renderer-compairision ----
+## ---- renderer-comparison ----
 
 renderer_tbl <- data.frame(
   renderer = c("Blender", "Libigl", "Pyrender", "Three.js", "Open3D"),
@@ -25,7 +25,7 @@ renderer_tbl <- data.frame(
 renderer_tbl %>%
   kbl(
     booktabs = T, escape = F,
-    caption = "Rendering engine compairision",
+    caption = "Rendering engine comparison",
     col.names = c(
       "Rendering engine",
       "API language",
