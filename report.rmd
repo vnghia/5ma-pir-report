@@ -35,35 +35,35 @@ knitr::read_chunk("report.r")
 
 ## Background
 
-Open-world games, where players are allowed to interact with their surrounding environments or non playable characters (NPCs) in a free way with almost no limitations have become one of the best genres of game in recent years. One of the reasons for that success is the emotional attachment from the player to the game characters. That attachment comes from the fact that each action the character took follows the control of the player, or in other words, the character reflects the behavior of the player, especially in open-world games where there are no limitations. A psychological study has been conducted to explore further that attachment in [@emo-attach].
+Open-world games, where players are allowed to interact with their surrounding environments or non playable characters (NPCs) in a free way with almost no limitations have become one of the most popular genres of game in recent years. One of the reasons for that success is the emotional attachment that the player develops for the game characters. That attachment comes from the fact that each action the character took follows the control of the player, or in other words, the character reflects the behavior of the player, especially in open-world games where there are no limitations. That attachment has even been the subject of a psychological study [@emo-attach].
 
-Given the reason above, a new trend is rising in the gaming industry: customizable character appearance (clothes, face, skin, etc). We can see it already in 2D games like "The Sims" and recent 3D games such as "Cyberpunk" or a more ambitious project “Metaverse” from “Meta”. The uniqueness of the customizations they offer leads to the sense of attachment which in-turn keeps players engaging with these games for a longer time.
+Given this phenomenon, a new trend is rising in the gaming industry: customizable character appearance, by which players can modify their avatars' clothes, face, skin, and other physical characteristics. We can see it already in 2D games like "The Sims" and recent 3D games such as "Cyberpunk" or a more ambitious project "Metaverse" from "Meta". The uniqueness of the customizations they offer reinforces the sense of attachment which in-turn keeps players engaging with these games for a longer time.
 
-However, games nowadays do not support enough options to satisfy the need of customization of the players, which gives rise to game’s modifications. This project aims to create a program or more closely a filter, which when activated on the screen will turn the selected person who appears on that screen (which could be an avatar from a game but also a real person from video or image) to another character of the user's choice without any noticeable lag and without any modification of the game.
+However, today's games do not support enough options to satisfy the players' demand for customizability, which often leads to game’s modifications, in which gamers modify the code or assets of a game to achieve their desirable result. The aim of our project is to create a universal filter which can replace a selected game character with another avatar of the player's choice, in real time, without any noticeable lag or alteration of the game's source code. Our secondary goal is to extend this replacement capability to figures, whether they are avatars or real people, in videos and still images.
 
 ## Current method
 
-In fact, replacing the appearance of an object in general is already feasible by video editor programs like: Adobe Premier Rush, iMovie, etc. This gives us high-quality results but also takes a lot of time to render the final result. Furthermore, this process requires a lot of manual effort as well as a prerecorded video, which is not applicable to our project.
+In fact, replacing the appearance of an object in general is already feasible by video editor programs like: Adobe Premier Rush, iMovie, etc. This gives us high-quality results but also takes a lot of time to render the final result. Furthermore, this process requires a lot of manual effort as well as pre-recorded gameplay footage which is not in real time.
 
 In the gaming industry, this idea is also achievable through altering the assets of the game which is usually referred as modding. The result quality is not as high as done manually by video editors, but still quite plausible (figure \@ref(fig:elden-ring-mod)).
 
-```{r, elden-ring-mod, fig.align="center", out.width="70%", fig.cap="Shrek vs Homer Simpson in Elden Ring"}
+```{r, elden-ring-mod, fig.align="center", out.width="70%", fig.cap="Shrek vs Homer Simpson in Elden Ring from the video [Elden Ring but ruined by mods](https://www.youtube.com/watch?v=b_FKkxVJfZk)"}
 knitr::include_graphics("figures/elden-ring-mod.png")
 ```
 
-However, this method requires modifying the games, especially where the game assets are stored which is not uniform for all games. Furthermore, the assets of each game might come in different formats and requires different handling. Therefore, this method only works with specific games and does not match our objectives.
+However, this method requires modifying the game's code, particularly where the game assets are stored, which is not uniform across all games. Additionally, the assets of each game may come in different formats and require different handling. As a result, this method only works for specific games and is not a universal solution that this project aims to achieve.
 
-### Automatic replacing
+## Automatic replacing
 
-Our goal is to have the selected character (source character) which is appearing on the current frame of the source replaced by another character (destination character) of user choice.
+Our goal is to have the selected character (source character) which is appearing on the current frame of the source replaced by another character (destination character) of user choice in real time.
 
-We will decompose our problem into three sub-problems: pose estimation, skeleton retargeting and mesh skinning. Our pipeline will be as follow:
+We will divide our problem into three sub-problems: pose estimation, skeleton retargeting and mesh skinning. Our pipeline will be as follow:
 
 - Estimating the pose of the source character.
 - Retargeting the pose obtained from the previous step to the pose of the destination character.
 - Adjusting the mesh of the destination character according to the new pose.
 
-We then explorer different method to solve each sub-problem and use the criteria below to evaluate them:
+We then explore different method to solve each sub-problem and use the criteria below to evaluate them:
 
 - Work with any video streaming source, where the input is their frame.
 - Work with real time constraints, the method can only use the current frame at this timestamp as well as past frames and knows nothing about the future information.
@@ -115,7 +115,7 @@ Since OpenPose does not offer an official TensorRT solution (PR [#285](https://g
 
 #### Accuracy
 
-One more major issue with OpenPose is that the accuracy is not good enough. Here we shows an example output in figure \@ref(fig:openpose-accuracy-output) to show why it is not as good as we expected. OpenPose wrongly detected something non-human as human while failing to detect the actual character. Here we have both false positives (indicating non-human as human) and false negatives (failing to detect the presence of actual humans). The input image is gameplay footage from Assassin's Creed Valhalla.
+One more major issue with OpenPose is that the accuracy is not good enough. Here we shows an example output in figure \@ref(fig:openpose-accuracy-output) to show why it is not as good as we expected. OpenPose wrongly detected something non-human as human while failing to detect the actual character. Here we have both false positives (indicating non-human as human) and false negatives (failing to detect the presence of actual human poses). The input image is gameplay footage from Assassin's Creed Valhalla where the main character is running.
 
 ```{r, openpose-accuracy-output, fig.show="hold", fig.align="center", out.width="50%", fig.cap="OpenPose low accuracy", fig.subcap=c("body\\_25", "body\\_25b")}
 knitr::include_graphics("figures/openpose-accuracy-body25-output.png")
@@ -126,7 +126,7 @@ The solution for this issue is to tweak the configuration of OpenPose to increas
 
 #### Consistency
 
-The final major issue with OpenPose is the consistency across frames. Figure \@ref(fig:openpose-consistency-output) shows OpenPose body_25b output at two timestamps whose difference is 84 milliseconds. OpenPose gives a very different output between two frames even though they are almost indistinguishable. The input image is gameplay footage from Assassin's Creed Valhalla.
+The final major issue with OpenPose is the consistency across frames. Figure \@ref(fig:openpose-consistency-output) shows OpenPose body_25b output at two timestamps whose difference is 20 milliseconds. OpenPose gives a very different output between two frames even though they are almost indistinguishable. The input image is gameplay footage from Assassin's Creed Valhalla.
 
 ```{r, openpose-consistency-output, fig.show="hold", fig.align="center", out.width="50%", fig.cap="OpenPose lack of consistency", fig.subcap=c("frame 1", "frame 2")}
 knitr::include_graphics("figures/openpose-consistency-body25b-output.png")
@@ -155,7 +155,7 @@ YOLOv7 has some support for accelerating with TensorRT. However, since the probl
 
 #### Accuracy
 
-Figure \@ref(fig:yolo-accuracy-output) shows YOLOv7 output with the input is the same as of OpenPose. Given the same frame, YOLOv7 did not detect anything.
+Figure \@ref(fig:yolo-accuracy-output) shows YOLOv7 output with the input is the same as of OpenPose. Given a similar frame, YOLOv7 did not detect anything.
 
 ```{r, yolo-accuracy-output, fig.align="center", out.width="50%", fig.cap="YOLOv7 low accuracy"}
 knitr::include_graphics("figures/yolo-accuracy-output.png")
@@ -240,9 +240,9 @@ We see that all 4 models we tested here have low accuracy regardless of their si
 
 This is usually the reason why we have false negatives (fail to correctly detect the pose of the characters or completely miss them).
 
-First, it is because of their appearance, or more specifically, their skin, their clothes, their items or their weapons are completely different from what we can find inside the dataset. Figure \@ref(fig:appearance-compairision) shows example images from the COCO dataset, which is used to train both OpenPose and YOLOv7 and example outfits in the game Assassin's Creed Valhalla. There is a clear distinction between them.
+First, it is because of their appearance, or more specifically, their skin, their clothes, their items or their weapons are completely different from what we can find inside the dataset. Figure \@ref(fig:appearance-comparison) shows example images from the COCO dataset, which is used to train both OpenPose and YOLOv7 and example outfits in the game Assassin's Creed Valhalla. There is a clear distinction between them.
 
-```{r, appearance-compairision, fig.show="hold", fig.align="center", out.height="15.5%", fig.cap="Appearance compairision", fig.subcap=c("COCO dataset", "Assassin's Creed Valhalla")}
+```{r, appearance-comparison, fig.show="hold", fig.align="center", out.height="15.5%", fig.cap="Appearance comparison", fig.subcap=c("COCO dataset", "Assassin's Creed Valhalla")}
 knitr::include_graphics("figures/coco-dataset.png")
 knitr::include_graphics("figures/ac-valhalla-outfit.png")
 ```
@@ -314,10 +314,10 @@ Another issue is the need of a rendering engine to render the skinned skeleton. 
 - run without the need of opening any GUI window.
 - provide programmatically API.
 
-```{r, renderer-compairision}
+```{r, renderer-comparison}
 ```
 
-Table \@ref(tab:renderer-compairision) shows a comparison between several renders we tried. All rendering engine mentioned above can run without a GUI. A "x" means "yes". Since our project is based mostly on Python, we choose Pyrender and implement the skinning code based on the code of Libigl. The skinning method we choose is dual quaternion skinning [@dqs]. For Three.js, since one of the retargeting libraries is written in Javascript, and it also offers better functionalities compared to other libraries (except Blender), we also use that in combination with the Javascript retargeting library.
+Table \@ref(tab:renderer-comparison) shows a comparison between several renders we tried. All rendering engine mentioned above can run without a GUI. A "x" means "yes". Since our project is based mostly on Python, we choose Pyrender and implement the skinning code based on the code of Libigl. The skinning method we choose is dual quaternion skinning [@dqs]. For Three.js, since one of the retargeting libraries is written in Javascript, and it also offers better functionalities compared to other libraries (except Blender), we also use that in combination with the Javascript retargeting library.
 
 Now we will move to the retargeting methods we have explored.
 
@@ -446,12 +446,36 @@ knitr::include_graphics("figures/demo-original.png")
 knitr::include_graphics("figures/demo-replaced.png")
 ```
 
+Compare to our [original goal](#automatic-replacing), this method can
+
+- Work with any video streaming source, where the input is their frame.
+- Work with real time constraints, the method can only use the current frame at this timestamp as
+well as past frames and knows nothing about the future information.
+- Work without noticeable lag. On a NVIDIA GTX 1050 TI 4Gb, it could run up to 25fps.
+- Fully automatic or minimal manual work required. No manual work is required.
+
+However, the result of this method does not look natural nor blend well with the surrounding environment in the picture. Furthermore, it can only detect and replace correctly when the character's pose is easy such as walking and falling to do so with more complex poses such as riding an animal.
+
+Compared to our original goal, this method has the ability to:
+
+- Work with any video streaming source, where the input is their frame.
+- Work with real time constraints, the method can only use the current frame at this timestamp as
+well as past frames and knows nothing about the future information.
+- Work without noticeable lag, achieving a frame rate of up to 25fps on a NVIDIA GTX 1050 TI 4Gb.
+- Fully automatic with no manual work necessary.
+
+However, the result of this method does not look natural and does not blend well with the surrounding environment in the image. Additionally, it can only accurately detect and replace characters when their pose is simple, such as walking, and struggles with more complex poses, such as riding an animal
+
 ## Improvement
 
-From the demo and throughout the report, it is observed that there is a lot of room for improvement. First, we need to improve the accuracy as well as consistency of the pose detectors, by training them on a dataset that contains gameplay features and implementing a better mechanism for keeping consistency. This is the most important improvement since it affects all other steps. Second, we want to find a retargeting method that has support for a better skinning mechanism. And finally, although this is not mentioned above, a better algorithm to blend the mesh renderer result into the input image such that it looks more natural is also a major improvement.
+From the demo and throughout the report, it is observed that there is a lot of room for improvement. First, we need to improve the accuracy as well as consistency of the pose detectors, by training them on a dataset that contains gameplay features and implementing a better mechanism for keeping consistency. This is the most important improvement since it affects all other steps. Second, we want to find a retargeting method that has support for a better skinning mechanism. And finally, although this is not mentioned above, a better algorithm to blend the mesh renderer result into the input image such that it looks more natural would also be a major improvement.
 
 # Conclusion
 
-In this project, we have explored many methods to solve this problem. Although no method is good enough for a perfect solution, we hope that these methods will be improved and we can get a perfect working filter in the future.
+In this project, we have examined various techniques to address three primary challenges: pose estimation, skeleton retargeting, and mesh skinning. In terms of pose estimation, we have identified a common issue among all models, where the datasets they were trained on did not account for the diversity and unusuality present in the gaming world. Additionally, we have observed a problem with the consistency of the model output, where the pose in the previous frame and the current frame can be vastly different. Another issue is that the 3D pose that is inferred from the 2D pose is not adequate for our purposes. Similarly, skeleton retargeting and mesh skinning also face challenges related to a lack of information to reconstruct the rotation matrix, leading to failure in the skinning process.
+
+Despite the extensive work we have done, we have yet to find a method that can provide a perfect solution to these problems. One potential next step for this project could be retraining a model on a dataset that includes gameplay footage from various games. This is something we have considered for a long time, but were unable to do so due to limited resources and time. Furthermore, the gradient descent inverse kinematics could also be enhanced for a better estimation of the rotation matrix with local rotation limit.
+
+We believe that with further research and development, the methods we have explored so far will be improved, and we can eventually achieve a perfect filter.
 
 \newpage
